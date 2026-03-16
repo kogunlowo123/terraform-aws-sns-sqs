@@ -1,3 +1,6 @@
+data "aws_caller_identity" "this" {}
+data "aws_region" "this" {}
+
 ###############################################################################
 # SNS Topics
 ###############################################################################
@@ -15,7 +18,7 @@ resource "aws_sns_topic" "this" {
   delivery_policy             = each.value.delivery_policy
   policy                      = each.value.policy
   archive_policy              = each.value.archive_policy
-  tags                        = local.sns_topic_tags[each.key]
+  tags                        = merge(var.tags, each.value.tags)
 }
 
 ###############################################################################
@@ -39,7 +42,7 @@ resource "aws_sqs_queue" "this" {
   deduplication_scope               = each.value.deduplication_scope
   fifo_throughput_limit             = each.value.fifo_throughput_limit
   policy                            = each.value.policy
-  tags                              = local.sqs_queue_tags[each.key]
+  tags                              = merge(var.tags, each.value.tags)
 
   redrive_policy = each.value.redrive_policy != null ? jsonencode({
     deadLetterTargetArn = each.value.redrive_policy.dead_letter_target_arn
@@ -54,13 +57,13 @@ resource "aws_sqs_queue" "this" {
 resource "aws_sqs_queue" "dead_letter" {
   for_each = var.dead_letter_queues
 
-  name                        = each.value.fifo_queue ? "${each.key}.fifo" : each.key
-  fifo_queue                  = each.value.fifo_queue
-  message_retention_seconds   = each.value.message_retention_seconds
-  kms_master_key_id           = each.value.kms_master_key_id
-  sqs_managed_sse_enabled     = each.value.kms_master_key_id == null ? each.value.sqs_managed_sse_enabled : null
-  visibility_timeout_seconds  = each.value.visibility_timeout_seconds
-  tags                        = local.dlq_tags[each.key]
+  name                       = each.value.fifo_queue ? "${each.key}.fifo" : each.key
+  fifo_queue                 = each.value.fifo_queue
+  message_retention_seconds  = each.value.message_retention_seconds
+  kms_master_key_id          = each.value.kms_master_key_id
+  sqs_managed_sse_enabled    = each.value.kms_master_key_id == null ? each.value.sqs_managed_sse_enabled : null
+  visibility_timeout_seconds = each.value.visibility_timeout_seconds
+  tags                       = merge(var.tags, each.value.tags)
 }
 
 ###############################################################################
@@ -111,7 +114,7 @@ resource "aws_sqs_queue_policy" "sns_to_sqs" {
 }
 
 ###############################################################################
-# CloudWatch Alarms — Queue Depth
+# CloudWatch Alarms - Queue Depth
 ###############################################################################
 
 resource "aws_cloudwatch_metric_alarm" "queue_depth" {
@@ -137,7 +140,7 @@ resource "aws_cloudwatch_metric_alarm" "queue_depth" {
 }
 
 ###############################################################################
-# CloudWatch Alarms — DLQ Depth
+# CloudWatch Alarms - DLQ Depth
 ###############################################################################
 
 resource "aws_cloudwatch_metric_alarm" "dlq_depth" {
@@ -163,7 +166,7 @@ resource "aws_cloudwatch_metric_alarm" "dlq_depth" {
 }
 
 ###############################################################################
-# CloudWatch Alarms — Oldest Message Age
+# CloudWatch Alarms - Oldest Message Age
 ###############################################################################
 
 resource "aws_cloudwatch_metric_alarm" "oldest_message" {

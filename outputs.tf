@@ -1,7 +1,3 @@
-###############################################################################
-# SNS Topics
-###############################################################################
-
 output "sns_topic_arns" {
   description = "Map of SNS topic names to their ARNs."
   value       = { for k, v in aws_sns_topic.this : k => v.arn }
@@ -21,10 +17,6 @@ output "sns_topic_owners" {
   description = "Map of SNS topic names to their owner account IDs."
   value       = { for k, v in aws_sns_topic.this : k => v.owner }
 }
-
-###############################################################################
-# SQS Queues
-###############################################################################
 
 output "sqs_queue_arns" {
   description = "Map of SQS queue names to their ARNs."
@@ -46,10 +38,6 @@ output "sqs_queue_names" {
   value       = { for k, v in aws_sqs_queue.this : k => v.name }
 }
 
-###############################################################################
-# Dead-Letter Queues
-###############################################################################
-
 output "dlq_arns" {
   description = "Map of dead-letter queue names to their ARNs."
   value       = { for k, v in aws_sqs_queue.dead_letter : k => v.arn }
@@ -65,10 +53,6 @@ output "dlq_urls" {
   value       = { for k, v in aws_sqs_queue.dead_letter : k => v.url }
 }
 
-###############################################################################
-# SNS Subscriptions
-###############################################################################
-
 output "sns_subscription_arns" {
   description = "Map of SNS subscription logical names to their ARNs."
   value       = { for k, v in aws_sns_topic_subscription.this : k => v.arn }
@@ -78,10 +62,6 @@ output "sns_subscription_ids" {
   description = "Map of SNS subscription logical names to their IDs."
   value       = { for k, v in aws_sns_topic_subscription.this : k => v.id }
 }
-
-###############################################################################
-# Account / Region
-###############################################################################
 
 output "account_id" {
   description = "The AWS account ID."
