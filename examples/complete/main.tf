@@ -92,10 +92,10 @@ module "messaging" {
   sqs_queues = {
     # Standard queue with DLQ and KMS
     "order-processor" = {
-      visibility_timeout_seconds = 120
-      message_retention_seconds  = 345600
-      receive_wait_time_seconds  = 20
-      kms_master_key_id          = "alias/sqs-cmk"
+      visibility_timeout_seconds        = 120
+      message_retention_seconds         = 345600
+      receive_wait_time_seconds         = 20
+      kms_master_key_id                 = "alias/sqs-cmk"
       kms_data_key_reuse_period_seconds = 600
       redrive_policy = {
         dead_letter_target_arn = module.messaging.dlq_arns["order-processor-dlq"]
@@ -190,11 +190,11 @@ module "messaging" {
 
     # HTTPS subscription for alerts
     "alerts-to-webhook" = {
-      topic_arn            = module.messaging.sns_topic_arns["system-alerts"]
-      protocol             = "https"
-      endpoint             = "https://hooks.example.com/alerts"
+      topic_arn              = module.messaging.sns_topic_arns["system-alerts"]
+      protocol               = "https"
+      endpoint               = "https://hooks.example.com/alerts"
       endpoint_auto_confirms = true
-      filter_policy_scope  = "MessageAttributes"
+      filter_policy_scope    = "MessageAttributes"
       filter_policy = jsonencode({
         severity = ["critical", "high"]
       })

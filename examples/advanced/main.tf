@@ -36,12 +36,12 @@ module "messaging" {
   # FIFO SQS queues with DLQ and KMS
   sqs_queues = {
     "order-processor" = {
-      fifo_queue                 = true
+      fifo_queue                  = true
       content_based_deduplication = true
-      visibility_timeout_seconds = 120
-      kms_master_key_id          = "alias/sqs-key"
-      deduplication_scope        = "messageGroup"
-      fifo_throughput_limit      = "perMessageGroupId"
+      visibility_timeout_seconds  = 120
+      kms_master_key_id           = "alias/sqs-key"
+      deduplication_scope         = "messageGroup"
+      fifo_throughput_limit       = "perMessageGroupId"
       redrive_policy = {
         dead_letter_target_arn = module.messaging.dlq_arns["order-processor-dlq"]
         max_receive_count      = 3
